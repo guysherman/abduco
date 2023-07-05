@@ -53,6 +53,12 @@ static void client_setup_terminal(void) {
 		fflush(stdout);
 		alternate_buffer = true;
 	}
+
+  if (dont_use_alternate_buffer) {
+		printf("\033[?25h\033[?1049l");
+		fflush(stdout);
+    alternate_buffer = false;
+  }
 }
 
 static int client_mainloop(void) {

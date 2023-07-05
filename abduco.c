@@ -121,7 +121,7 @@ typedef struct {
 static Server server = { .running = true, .exit_status = -1, .host = "@localhost" };
 static Client client;
 static struct termios orig_term, cur_term;
-static bool has_term, alternate_buffer, quiet, passthrough;
+static bool has_term, alternate_buffer, quiet, passthrough, dont_use_alternate_buffer;
 
 static struct sockaddr_un sockaddr = {
 	.sun_family = AF_UNIX,
@@ -596,6 +596,7 @@ int main(int argc, char *argv[]) {
 	int opt;
 	bool force = false;
 	char **cmd = NULL, action = '\0';
+  dont_use_alternate_buffer = false;
 
 	char *default_cmd[4] = { "/bin/sh", "-c", getenv("ABDUCO_CMD"), NULL };
 	if (!default_cmd[2]) {
@@ -606,7 +607,7 @@ int main(int argc, char *argv[]) {
 	server.name = basename(argv[0]);
 	gethostname(server.host+1, sizeof(server.host) - 1);
 
-	while ((opt = getopt(argc, argv, "aAclne:fpqrv")) != -1) {
+	while ((opt = getopt(argc, argv, "aAclne:bfpqrv")) != -1) {
 		switch (opt) {
 		case 'a':
 		case 'A':
@@ -639,6 +640,9 @@ int main(int argc, char *argv[]) {
 		case 'v':
 			puts("abduco-"VERSION" © 2013-2018 Marc André Tanner");
 			exit(EXIT_SUCCESS);
+    case 'b':
+      dont_use_alternate_buffer = true;
+      break;
 		default:
 			usage();
 		}
